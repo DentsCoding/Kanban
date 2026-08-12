@@ -1,14 +1,12 @@
 <script setup>
-  import { ref, provide } from 'vue' 
+  import { ref, provide, watch } from 'vue' 
   import Column from './components/Column.vue';
 
   const taskIndex = ref(3)
   const newTaskTitle = ref("")
   const newTaskDesc = ref("")
   const dropAreas = ref([{title: "To Do", statusKey: "todo"}, {title: "In Progress", statusKey: "in-progress"}, {title: "Done", statusKey: "done"}])
-  const tasks = ref([{id: 0, title: "Example todo task", description: "Example todo description", status: "todo"}, 
-                     {id: 1, title: "Example in progress task", description: "Example in progress description", status: "in-progress"},
-                     {id: 2, title: "Example done task", description: "Example done description", status: "done"}])
+  const tasks = ref(JSON.parse(localStorage.getItem("kanban_tasks")))
 
 function addNewTask() {
   if (newTaskTitle.value.trim() === "") return
@@ -53,7 +51,9 @@ function changeDescription(taskId, newDescription)
   provide('changeTitle', changeTitle)
   provide('changeDescription', changeDescription)
 
-
+watch(tasks, (newTasks) => {
+  localStorage.setItem("kanban_tasks", JSON.stringify(newTasks))
+}, {deep: true})
 </script>
 
 <template>
