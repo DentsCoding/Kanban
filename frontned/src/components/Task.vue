@@ -61,6 +61,18 @@ function handleChangeDescription() {
     isDraggable.value = true
 }
 
+function cancelEditTitle() {
+    titleEdit.value = props.title
+    isTitleEdited.value = false
+    isDraggable = true
+}
+
+function cancelEditDescription() {
+    descEdit.value = props.description
+    isDescEdited.value = false
+    isDraggable = true
+}
+
 async function editTitle() {
     if(!isTitleEdited.value) isTitleEdited.value = true
     isDraggable.value = false
@@ -88,10 +100,26 @@ onUnmounted(() => window.removeEventListener('click', closeContextMenu))
     <div class="task-card" :draggable="isDraggable" @dragstart="onDragStart" @contextmenu="handleContextMenu">
 
         <h3 v-if="!isTitleEdited" @dblclick="editTitle">{{ props.title }}</h3>
-        <input v-if="isTitleEdited" v-model="titleEdit" ref="titleInputRef" type="text" @focusout="handleChangeTitle">
+        <input 
+            v-if="isTitleEdited" 
+            v-model="titleEdit" 
+            ref="titleInputRef" 
+            type="text" 
+            @focusout="handleChangeTitle"
+            @keyup.enter="handleChangeTitle"
+            @keyup.esc="cancelEditTitle"
+            >
 
         <p v-if="!isDescEdited" @dblclick="editDescription">{{ props.description }}</p>
-        <input v-if="isDescEdited" v-model="descEdit" ref="descInputRef" type="text" @focusout="handleChangeDescription">
+        <input 
+            v-if="isDescEdited" 
+            v-model="descEdit" 
+            ref="descInputRef" 
+            type="text" 
+            @focusout="handleChangeDescription" 
+            @keyup.enter="handleChangeDescription"
+            @keyup.esc="cancelEditDescription"
+            >
         
         <Teleport to="body">
             <div 
