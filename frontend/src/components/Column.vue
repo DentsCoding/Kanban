@@ -37,7 +37,6 @@ function onDrop() {
     </section>
 </template>
 
-<!-- SCOPED CSS: Applies ONLY to Column.vue -->
 <style scoped>
 .column {
   background: #ffffff;
