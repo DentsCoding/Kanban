@@ -2,12 +2,14 @@
   import { ref, provide, watch } from 'vue' 
   import Column from './components/Column.vue';
 
-  const taskIndex = ref(3)
   const newTaskTitle = ref("")
   const newTaskDesc = ref("")
   const newTaskPriority = ref("medium")
   const dropAreas = ref([{title: "To Do", statusKey: "todo"}, {title: "In Progress", statusKey: "in-progress"}, {title: "Done", statusKey: "done"}])
   const tasks = ref(JSON.parse(localStorage.getItem("kanban_tasks")))
+
+  const maxId = tasks.value.length > 0 ? Math.max(...tasks.value.map(t => t.id)) : 0
+  const taskIndex = ref(maxId + 1)
 
 function addNewTask() {
   if (newTaskTitle.value.trim() === "") return
