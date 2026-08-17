@@ -1,5 +1,5 @@
 <script setup>
-import Task from './Task.vue';
+import Task from '@/components/kanban/Task.vue';
 import { computed } from 'vue'
 
 const props = defineProps({
