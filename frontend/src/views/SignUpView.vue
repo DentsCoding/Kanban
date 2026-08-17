@@ -7,18 +7,29 @@
     <main class="auth-main">
       <div class="auth-card">
         <div class="auth-header">
-          <h2>Welcome back</h2>
-          <p>Please enter your details to sign in.</p>
+          <h2>Create an account</h2>
+          <p>Get started with your free Kanban board.</p>
         </div>
 
-        <form @submit.prevent="handleLogin" class="auth-form">
+        <form @submit.prevent="handleSignup" class="auth-form">
           <div class="input-group">
-            <label for="identifier">Username or Email</label>
+            <label for="username">Username</label>
             <input 
-              id="identifier"
-              v-model="identifier" 
+              id="username"
+              v-model="username" 
               type="text" 
-              placeholder="Enter your username or email" 
+              placeholder="Choose a username" 
+              required 
+            />
+          </div>
+
+          <div class="input-group">
+            <label for="email">Email</label>
+            <input 
+              id="email"
+              v-model="email" 
+              type="email" 
+              placeholder="you@example.com" 
               required 
             />
           </div>
@@ -29,16 +40,16 @@
               id="password"
               v-model="password" 
               type="password" 
-              placeholder="••••••••" 
+              placeholder="Create a password" 
               required 
             />
           </div>
 
-          <button type="submit" class="auth-submit-btn">Sign In</button>
+          <button type="submit" class="auth-submit-btn">Sign Up</button>
         </form>
 
         <div class="auth-footer">
-          <p>Don't have an account? <a href="#" @click.prevent="$emit('navigate', 'signup')">Sign up</a></p>
+          <p>Already have an account? <a href="#" @click.prevent="$emit('navigate', 'login')">Sign in</a></p>
         </div>
       </div>
     </main>
