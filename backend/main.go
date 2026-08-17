@@ -68,12 +68,12 @@ func LoginHandler(c *gin.Context) {
 
 	var input LoginRequest
 	if err := c.ShouldBindJSON(&input); err != nil {
-		c.JSON(http.StatusBadRequest, gin.H{"error":"Invalid payload"})
+		c.JSON(http.StatusBadRequest, gin.H{"error": "Invalid payload"})
 		return
 	}
 
 	var user struct {
-		ID int
+		ID       int
 		Username string
 		Password string
 	}
@@ -81,19 +81,19 @@ func LoginHandler(c *gin.Context) {
 	query := "SELECT id, username, password FROM users WHERE username = $1"
 	err := db.QueryRow(query, input.Username).Scan(&user.ID, &user.Username, &user.Password)
 	if err != nil {
-		c.JSON(http.StatusUnauthorized, gin.H{"error":"Invalid username or password."})
+		c.JSON(http.StatusUnauthorized, gin.H{"error": "Invalid username or password."})
 		return
 	}
 	// 2. verify password
 	match, err := VerifyPassword(input.Password, user.Password)
 	if err != nil || !match {
-		c.JSON(http.StatusUnauthorized, gin.H{"error":"Invalid username or passworod."})
+		c.JSON(http.StatusUnauthorized, gin.H{"error": "Invalid username or passworod."})
 		return
 	}
 	// 3. generate token
 	tokenString, err := GenerateJWT(user.ID, user.Username)
 	if err != nil {
-		c.JSON(http.StatusInternalServerError, gin.H{"error":"Could not generate token."})
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "Could not generate token."})
 		return
 	}
 	// 4. set cookie with said token
@@ -107,7 +107,7 @@ func LoginHandler(c *gin.Context) {
 		true,
 	)
 
-	c.JSON(http.StatusOK, gin.H{"message":"Login successful."})
+	c.JSON(http.StatusOK, gin.H{"message": "Login successful."})
 }
 
 func HashFunction(password string, p ArgonParams) (string, error) {
@@ -129,27 +129,25 @@ func HashFunction(password string, p ArgonParams) (string, error) {
 
 }
 
-
 func LogoutHandler(c *gin.Context) {
 	c.SetCookie("token", "", -1, "/", "", false, true)
-	c.JSON(http.StatusOK, gin.H{"message":"Log out successful."})
+	c.JSON(http.StatusOK, gin.H{"message": "Log out successful."})
 }
 
-
 func AuthMiddleware() gin.HandlerFunc {
-	return func (c *gin.Context) {
+	return func(c *gin.Context) {
 		// get the jwt token
 		tokenString, err := c.Cookie("token")
 		if err != nil {
-			c.JSON(http.StatusUnauthorized, gin.H{"error":"Authentication cookie required"})
+			c.JSON(http.StatusUnauthorized, gin.H{"error": "Authentication cookie required"})
 			c.Abort()
 			return
 		}
 
-		// parse and validate 
-		claims, err := ValidateJWT(tokenString) 
+		// parse and validate
+		claims, err := ValidateJWT(tokenString)
 		if err != nil {
-			c.JSON(http.StatusUnauthorized, gin.H{"error":"Token invalid or expired."})
+			c.JSON(http.StatusUnauthorized, gin.H{"error": "Token invalid or expired."})
 			c.Abort()
 			return
 		}
@@ -158,19 +156,18 @@ func AuthMiddleware() gin.HandlerFunc {
 		c.Set("username", claims.Username)
 
 		c.Next()
-		
+
 	}
 }
-
 
 func GenerateJWT(userID int, username string) (string, error) {
 
 	claims := Claims{
-		UserID: userID,
+		UserID:   userID,
 		Username: username,
 		RegisteredClaims: jwt.RegisteredClaims{
 			ExpiresAt: jwt.NewNumericDate(time.Now().Add(24 * time.Hour)),
-			IssuedAt: jwt.NewNumericDate(time.Now()),
+			IssuedAt:  jwt.NewNumericDate(time.Now()),
 		},
 	}
 	// 1. gen jwt with claims + choose sign method 2. return signed jwt
@@ -180,14 +177,13 @@ func GenerateJWT(userID int, username string) (string, error) {
 
 func ValidateJWT(tokenString string) (*Claims, error) {
 	claims := &Claims{}
-	// parse 
+	// parse
 	token, err := jwt.ParseWithClaims(tokenString, claims, func(token *jwt.Token) (interface{}, error) {
 		if _, ok := token.Method.(*jwt.SigningMethodHMAC); !ok {
 			return nil, errors.New("Unexpected signing method")
 		}
-		return jwtSecret, nil
+		return jwtSecret, nil // function returns the secret key
 	})
-
 
 	if err != nil {
 		return nil, err
@@ -252,7 +248,7 @@ func CreateUser(c *gin.Context) {
 	err := db.QueryRow("SELECT username FROM users WHERE username = $1", input.Username).Scan(&username)
 	if err != nil {
 		if err == sql.ErrNoRows {
-			c.JSON(http.StatusBadRequest, gin.H{"error":"Invalid or missing credentials"})
+			c.JSON(http.StatusBadRequest, gin.H{"error": "Invalid or missing credentials"})
 			return
 		}
 	}
@@ -270,7 +266,6 @@ func CreateUser(c *gin.Context) {
 
 	c.JSON(http.StatusCreated, resp)
 }
-
 
 var db *sql.DB
 
@@ -292,10 +287,10 @@ func main() {
 	defer db.Close()
 
 	r.POST("/api/users/create", CreateUser)
-	r.POST("/api/session/login", LoginHandler)
-	r.POST("/api/session/logout", LogoutHandler)
+	r.POST("/api/auth/login", LoginHandler)
+	r.POST("/api/auth/logout", LogoutHandler)
 
-	protected := r.Group("/api/session")
+	protected := r.Group("/api/auth")
 	protected.Use(AuthMiddleware())
 	{
 		protected.GET("/profile", func(c *gin.Context) {
@@ -303,9 +298,9 @@ func main() {
 			username, _ := c.Get("username")
 
 			c.JSON(http.StatusOK, gin.H{
-				"user_id": userID,
+				"user_id":  userID,
 				"username": username,
-				"status": "authenticated",
+				"status":   "authenticated",
 			})
 		})
 
