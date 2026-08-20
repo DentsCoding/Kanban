@@ -45,7 +45,7 @@ func (handler *Handler) HandleCreateUser(c *gin.Context, username, email, passwo
 		return
 	}
 
-	user, err := handler.service.CreateNewUser(c.Request.Context(), username, email, password)
-	if err != nil {
-	}
+	//user, err := handler.service.CreateNewUser(c.Request.Context(), username, email, password)
+	//if err != nil {
+	//}
 }
